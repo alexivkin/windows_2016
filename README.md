@@ -1,4 +1,4 @@
-# Windows 2016 optimized build
+# Windows 2016 server optimized build
 
 This is a [packer](https://www.packer.io/) build environment for the windows server 2016 base VM for Virtual Box hosted on the [Vagrant box catalog](https://app.vagrantup.com/alexivkin/boxes/windows_2016).
 
@@ -15,12 +15,14 @@ Things that are done during the build:
 
 The only external tool used in the build is Microsoft's sdelete. It is here because there is no built-in windows way to zero out a disk for the vbox size reduction.
 
-Based on scripts from [Stefan Scherer](https://github.com/StefanScherer/packer-windows) and [Joe Fitzgerald](https://github.com/joefitzgerald/packer-windows)
+Based on scripts from [Stefan Scherer](https://github.com/StefanScherer/packer-windows) and [Joe Fitzgerald](https://github.com/joefitzgerald/packer-windows).
+
+The image is about 10% smaller than that from Stefan Scherer.
 
 # Building
 `packer build packer.json`
 
-A trial WSC 2016 ISO will be downloaded from Microsoft and cached on the first build. Once the build is done, add it to the list of availabe boxes:
+A trial windows server 2016 ISO will be downloaded from Microsoft and cached on the first build. Once the build is done, add it to the list of availabe boxes:
 
 `vagrant box add alexivkin/windows_2016 windows_2016_virtualbox.box`
 
