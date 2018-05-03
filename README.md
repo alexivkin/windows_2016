@@ -13,11 +13,11 @@ Things that are done during the build:
 * Windows defender removed
 * Disk cleaned up
 
-The only external tool used in the build is Microsoft's sdelete. It is here because there is no built-in windows way to zero out a disk for the vbox size reduction.
+External tools used in the build are Microsoft's sdelete and Bleachbit, in script/compact.ps1. sdelete is used because there is no built-in windows way to zero out a disk for the vbox size reduction.
 
 Based on scripts from [Stefan Scherer](https://github.com/StefanScherer/packer-windows) and [Joe Fitzgerald](https://github.com/joefitzgerald/packer-windows).
 
-The image is about 10% smaller than that from Stefan Scherer.
+The image is about 10% smaller than that from Stefan Scherer, which is 10% smaller than Joe's.
 
 # Building
 `packer build packer.json`
@@ -40,9 +40,6 @@ The validity can be see in the event log -> application -> security-SPP, event I
 
 ## Testing and development
 The Autonunattend.xml script will install all the windows updates during the build, which is a **very** time consuming process. You  might want to disable this functionality by uncommenting the `WITHOUT WINDOWS UPDATES` and commenting out the `WITH WINDOWS UPDATES` sections.
+Alternatively you can copy Autonunattend.xml.noupdates or Autonunattend.xml.withupdates over Autonunattend.xml
 
-To upload the box into the vagrant could you will need to use the vagrant cloud web interface or the API as documented [here](https://www.vagrantup.com/docs/vagrant-cloud/boxes/create.html). In the past you could have used the `packer push alexivkin/windows_2016` command.
-
-## Todo
-* Audio in or out is disabled by default
-* More cleaning can be done by downloading and running bleachbit
+Use `./publish` to push your creation to the Vagrant Cloud
