@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# update the box after the build
+rm packer_cache/*
+rm windows_2016_virtualbox.box

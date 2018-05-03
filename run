@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# update the box after the build
+
+vagrant box add alexivkin/windows_2016 windows_2016_virtualbox.box --force
+
+echo now start a vagrant box like this: vagrant init alexivkin/windows_2016; vagrant up
+echo or run an existing box with  config.vm.box = "alexivkin/windows_2016" in the vagrantfile

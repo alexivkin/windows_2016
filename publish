@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Requires jq in the path - apt install jq
+# References
+# https://www.vagrantup.com/docs/vagrant-cloud/api.html#creating-a-usable-box-from-scratch
+# https://www.vagrantup.com/docs/vagrant-cloud/boxes/create.html
+
+USER=alexivkin
+BOX=windows_2016
+VERSION=$(date +"%Y.%m.%d")
+
+source vagrant-cloud-token
+
+echo -n "Creating the box for $USER/$BOX..."
+curl --header "Content-Type: application/json" --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" https://app.vagrantup.com/api/v1/boxes --data '{ "box": { "username": "'$USER'", "name": "'$BOX'" } }'
+#{"errors":["Type has already been taken"],"success":false}
+
+echo -en "\nCreate the version $VERSION..."
+curl --header "Content-Type: application/json" --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" https://app.vagrantup.com/api/v1/box/$USER/$BOX/versions --data '{ "version": { "version": "'$VERSION'" } }'
+#{"errors":["Version has already been taken"],"success":false}
+
+echo -en "\nCreating the virtualbox provider..."
+curl --header "Content-Type: application/json" --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" https://app.vagrantup.com/api/v1/box/$USER/$BOX/version/$VERSION/providers --data '{ "provider": { "name": "virtualbox" } }'
+#{"errors":["Metadata provider must be unique for version"],"success":false}
+
+echo -en "\nReceiving the upload url..."
+response=$(curl -s --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" https://app.vagrantup.com/api/v1/box/$USER/$BOX/version/$VERSION/provider/virtualbox/upload)
+
+upload_path=$(echo "$response" | jq .upload_path | tr -d '"')
+
+echo -en "\nUploading ..."
+curl $upload_path -o upload.log --progress-bar --request PUT --upload-file windows_2016_virtualbox.box |
+
+# When the upload finishes, you can verify it worked by making this request and matching the hosted_token it returns to the previously retrieved upload token.
+uploaded_path=$(curl -s https://app.vagrantup.com/api/v1/box/$USER/$BOX/version/$VERSION/provider/virtualbox | jq .hosted_token | tr -d '"')
+
+if [[ $upload_path == $uploaded_path ]]; then
+    echo -en "\nReleasing..."
+    curl --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" https://app.vagrantup.com/api/v1/box/$USER/$BOX/version/$VERSION/release --request PUT
+    echo Done. You might want to cleanup now - rm packer_cache/*; rm windows_2016_virtualbox.box
+else
+    echo -e "\nUpload did not work: $upload_path != $uploaded_path"
+fi
